@@ -1,0 +1,76 @@
+Sub stockdata()
+
+Dim ticker As String, start As Double, openprice As Double, closeprice As Double, yearlychange As Double, totalvolume As Double
+Dim percentchange As Double
+
+For Each ws In Worksheets
+
+ws.Range("I1").Value = "Ticker"
+ws.Range("J1").Value = "Yearly Change"
+ws.Range("K1").Value = "Percent Change"
+ws.Range("L1").Value = "Total Stock Volume"
+
+counti = 1
+setcountup = 2
+totalvolume = 0
+
+'lr is last row to find ticker
+lr = ws.Cells(Rows.Count, 1).End(xlUp).Row
+For i = 2 To lr
+'comparing current cell with previous cell to see if they are different
+If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+ticker = ws.Cells(i, 1).Value 'keep the value
+ws.Cells(setcountup, 9).Value = ticker
+counti = counti + 1 
+
+openprice = ws.Cells(counti, 3).Value 'using the first open price of that ticker
+closeprice = ws.Cells(i, 6).Value 'using the last close price of that ticker
+
+For j = counti To i 'loop to find total stock volume starting with counter 0
+totalvolume = totalvolume + ws.Cells(j, 7).Value
+ws.Cells(setcountup, 12).Value = totalvolume
+Next j
+
+If openprice = 0 Then 'avoid getting an error if openprice is 0
+percentchange = closeprice
+Else
+yearlychange = closeprice - openprice
+percentchange = yearlychange / openprice
+End If
+            
+'place values in cells
+ws.Cells(setcountup, 10).Value = yearlychange
+ws.Cells(setcountup, 11).Value = percentchange
+ws.Cells(setcountup, 11).NumberFormat = "0.00%"
+
+
+setcountup = setcountup + 1
+
+yearlychange = 0
+percentchange = 0
+totalvolume = 0
+
+counti = i
+
+End If
+
+Next i
+
+
+'add color formatting
+'lr2 is last row #2 since lr1 was used previously
+
+lr2 = ws.Cells(Rows.Count, 10).End(xlUp).Row
+
+For j = 2 To lr2
+If ws.Cells(j, 10) >= 0 Then
+ws.Cells(j, 10).Interior.ColorIndex = 4
+Else
+ws.Cells(j, 10).Interior.ColorIndex = 3
+End If
+Next j
+
+Next ws
+End Sub
+
+
